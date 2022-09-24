@@ -26,6 +26,92 @@ import SwiftSoup
 
  // TODO:
  //   Support decoded entities with unifiable. */
+ class FileDownloader {
+
+     static func loadFileSync(url: URL, to destinationUrl: URL, completion: @escaping (String?, Error?) -> Void)
+     {
+         // let documentsUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+
+         // let destinationUrl = documentsUrl.appendingPathComponent(url.lastPathComponent)
+
+         if FileManager().fileExists(atPath: destinationUrl.path)
+         {
+             // print("File already exists [\(destinationUrl.path)]")
+             completion(destinationUrl.path, nil)
+         }
+         else if let dataFromURL = NSData(contentsOf: url)
+         {
+             if dataFromURL.write(to: destinationUrl, atomically: true)
+             {
+                 // print("file saved [\(destinationUrl.path)]")
+                 completion(destinationUrl.path, nil)
+             }
+             else
+             {
+                 print("error saving file")
+                 let error = NSError(domain:"Error saving file", code:1001, userInfo:nil)
+                 completion(destinationUrl.path, error)
+             }
+         }
+         else
+         {
+             let error = NSError(domain:"Error downloading file", code:1002, userInfo:nil)
+             completion(destinationUrl.path, error)
+         }
+     }
+
+     static func loadFileAsync(url: URL, completion: @escaping (String?, Error?) -> Void)
+     {
+         let documentsUrl =  FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+
+         let destinationUrl = documentsUrl.appendingPathComponent(url.lastPathComponent)
+
+         if FileManager().fileExists(atPath: destinationUrl.path)
+         {
+             print("File already exists [\(destinationUrl.path)]")
+             completion(destinationUrl.path, nil)
+         }
+         else
+         {
+             let session = URLSession(configuration: URLSessionConfiguration.default, delegate: nil, delegateQueue: nil)
+             var request = URLRequest(url: url)
+             request.httpMethod = "GET"
+             let task = session.dataTask(with: request, completionHandler:
+             {
+                 data, response, error in
+                 if error == nil
+                 {
+                     if let response = response as? HTTPURLResponse
+                     {
+                         if response.statusCode == 200
+                         {
+                             if let data = data
+                             {
+                                 if let _ = try? data.write(to: destinationUrl, options: Data.WritingOptions.atomic)
+                                 {
+                                     completion(destinationUrl.path, error)
+                                 }
+                                 else
+                                 {
+                                     completion(destinationUrl.path, error)
+                                 }
+                             }
+                             else
+                             {
+                                 completion(destinationUrl.path, error)
+                             }
+                         }
+                     }
+                 }
+                 else
+                 {
+                     completion(destinationUrl.path, error)
+                 }
+             })
+             task.resume()
+         }
+     }
+ }
 public class HTML2Text: NodeVisitor {
     public func has_key(_ x: [String: String], _ y: String) -> Bool {
         if x.has_key(y) {
@@ -324,6 +410,10 @@ public class HTML2Text: NodeVisitor {
 
     /// Hide strike-through text. only relevant when google_doc is specified as well"
     public var hide_strikethrough: Bool = true
+
+    // Download web-hosted images
+    public var localize_images: Bool = false
+    public var asset_path: String = ""
 
     /// Convert an html-exported Google Document
     public var google_doc = true
@@ -863,6 +953,21 @@ public class HTML2Text: NodeVisitor {
             }
             if var attrs = attrs, has_key(attrs, "src") {
                 attrs["href"] = attrs["src"]
+                attrs["local"] = "no"
+                if localize_images {
+                    let sourceURL = URL(string: attrs["src"]!)
+                    if !sourceURL!.scheme!.matches(#"^data"#) {
+                        let localDir = URL(fileURLWithPath: asset_path)
+                        let localImage = localDir.appendingPathComponent(sourceURL!.lastPathComponent)
+
+                        FileDownloader.loadFileSync(url: sourceURL!, to: localImage) { (path, error) in
+                            if error == nil {
+                                attrs["href"] = path!
+                                attrs["local"] = "yes"
+                            }
+                        }
+                    }
+                }
                 let alt = attrs.get("alt") ?? ""
                 o("![" + escape_md(alt) + "]")
 
@@ -1157,7 +1262,7 @@ public class HTML2Text: NodeVisitor {
 
                     if outcount > Int(link["outcount"]!)! {
                         var fulllink = link["href"]
-                        if fulllink!.startswith("/") {
+                        if fulllink!.startswith("/"), link["local"] != "yes" {
                             fulllink = "\(baseurl)\(fulllink!)"
                         }
                         outtextf("[" + String(link["count"]!) + "]: " + URL(string: fulllink!.stringByAddingPercentEncodingForFormUrlencoded()!)!.absoluteString.removingPercentEncoding!)
@@ -1694,6 +1799,8 @@ public class HTML2Text: NodeVisitor {
         h.ignore_images = ignoreImages
         h.google_doc = googleDoc
         h.hide_strikethrough = hideStrikethrough
+        h.localize_images = localize_images
+        h.asset_path = asset_path
         h.escape_snob = escapeAll
 
         // wrapwrite(fixheadlines(normalize_tables(h.handle(data.replace("u{201c}", "\"").replace("u{201d}", "\"").replace("u{2018}","'").replace("u{2019}","'")))))
