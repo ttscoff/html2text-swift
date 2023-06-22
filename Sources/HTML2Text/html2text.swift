@@ -1708,10 +1708,10 @@ public class HTML2Text: NodeVisitor {
         return fixheadlines(fixbrackets(h.handle(input)))
     }
 
-    public static func process(html: String, baseurl: String?) -> String {
-        let h = HTML2Text(baseurl: baseurl!)
+    public static func process(html: String, baseurl: String) -> String {
+        let h = HTML2Text(baseurl: baseurl)
 
-        let html2textresult = h.main(baseurl: baseurl!, data: html)
+        let html2textresult = h.main(baseurl: baseurl, data: html)
 
         var result = html2textresult.replacingOccurrences(of: #"([\*\-\+] .*?)\n+(?=[\*\-\+] )"#, with: "$1\n", options: .regularExpression)
         result = result.replacingOccurrences(of: #"(?m)\n{2,}"#, with: "\n\n")
