@@ -278,8 +278,8 @@ public class HTML2Text: NodeVisitor {
 
     /// extract numbering from list element attributes
     public func list_numbering_start(_ attrs: [String: String]) -> Int {
-        if attrs.keys.contains("start") {
-            return Int(attrs["start"]!)! - 1
+        if attrs.keys.contains("start"), let s = attrs["start"], let ix = Int(s) {
+            return ix - 1
         } else {
             return 0
         }
@@ -1457,22 +1457,20 @@ public class HTML2Text: NodeVisitor {
     }
 
     public func fixbrackets(_ input: String) -> String {
-        let pattern = #"(\s*)(`|[\*_]+)\[([^\]]+\1\])"#
-
-        // $1 [$2]$3
-        var fixbracket: String {
-            let match = re.search(pattern, input)
-
-            let group1 = match.group(1) ?? ""
-            let group2 = match.group(2) ?? ""
-            let group3 = match.group(3) ?? ""
-
-            return group1 + "[" + group2 + group3
+        let pattern = #"(\s*)(`|[\*_]+)\[([^\]]+\2\])"#
+        
+        var text = input
+        let regex = try! NSRegularExpression(pattern: pattern, options: [])
+        while let match = regex.firstMatch(in: text, options: [], range: NSMakeRange(0, (text as NSString).length)) {
+            let group1 = (text as NSString).substring(with: match.range(at: 1))
+            let group2 = (text as NSString).substring(with: match.range(at: 2))
+            let group3 = (text as NSString).substring(with: match.range(at: 3))
+            var fixbracket = group1 + "[" + group2 + group3
+            for i in 0...9 {
+                fixbracket = fixbracket.replace("\\\(i)", "$\(i)")
+            }
+            text = (text as NSString).replacingCharacters(in: match.range(at: 0), with: fixbracket)
         }
-
-        // single replacement
-        let text = re.sub(pattern, fixbracket, input) // , re.S)
-
         return text
     }
 
