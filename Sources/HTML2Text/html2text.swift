@@ -35,23 +35,23 @@ public class HTML2Text: NodeVisitor {
         }
     }
 
-//
-//    try:
-//    import htmlentitydefs
-//    import urlparse
-//    import HTMLParser
-//    except ImportError: // Python3
-//    import html.entities as htmlentitydefs
-//    import urllib.parse as urlparse
-//    import html.parser as HTMLParser
-//    try: // Python3
-//    import urllib.request as urllib
-//    except:
-//    import urllib
-//    import optparse, re, sys, codecs, types
-//
-//    try: from textwrap import wrap
-//    except: pass
+    //
+    //    try:
+    //    import htmlentitydefs
+    //    import urlparse
+    //    import HTMLParser
+    //    except ImportError: // Python3
+    //    import html.entities as htmlentitydefs
+    //    import urllib.parse as urlparse
+    //    import html.parser as HTMLParser
+    //    try: // Python3
+    //    import urllib.request as urllib
+    //    except:
+    //    import urllib
+    //    import optparse, re, sys, codecs, types
+    //
+    //    try: from textwrap import wrap
+    //    except: pass
 
     // Use Unicode characters instead of their ascii psuedo-replacements
     public let UNICODE_SNOB = true
@@ -67,7 +67,7 @@ public class HTML2Text: NodeVisitor {
 
     // Don't show internal links (href="#local-anchor") -- corresponding link targets
     // won't be visible in the plain text file anyway.
-    public let SKIP_INTERNAL_LINKS = true // true
+    public let SKIP_INTERNAL_LINKS = true  // true
 
     // Use inline, rather than reference, formatting for images and links
     public let INLINE_LINKS = false
@@ -81,7 +81,49 @@ public class HTML2Text: NodeVisitor {
 
     /* Entity Nonsense */
     // let htmlentitydefs = ["AElig": "Æ", "Aacute": "Á", "Acirc": "Â", "Agrave": "À", "Alpha": "Α", "Aring": "Å", "Atilde": "Ã", "Auml": "Ä", "Beta": "Β", "Ccedil": "Ç", "Chi": "Χ", "Dagger": "‡", "Delta": "Δ", "ETH": "Ð", "Eacute": "É", "Ecirc": "Ê", "Egrave": "È", "Epsilon": "Ε", "Eta": "Η", "Euml": "Ë", "Gamma": "Γ", "Iacute": "Í", "Icirc": "Î", "Igrave": "Ì", "Iota": "Ι", "Iuml": "Ï", "Kappa": "Κ", "Lambda": "Λ", "Mu": "Μ", "Ntilde": "Ñ", "Nu": "Ν", "OElig": "Œ", "Oacute": "Ó", "Ocirc": "Ô", "Ograve": "Ò", "Omega": "Ω", "Omicron": "Ο", "Oslash": "Ø", "Otilde": "Õ", "Ouml": "Ö", "Phi": "Φ", "Pi": "Π", "Prime": "″", "Psi": "Ψ", "Rho": "Ρ", "Scaron": "Š", "Sigma": "Σ", "THORN": "Þ", "Tau": "Τ", "Theta": "Θ", "Uacute": "Ú", "Ucirc": "Û", "Ugrave": "Ù", "Upsilon": "Υ", "Uuml": "Ü", "Xi": "Ξ", "Yacute": "Ý", "Yuml": "Ÿ", "Zeta": "Ζ", "aacute": "á", "acirc": "â", "acute": "´", "aelig": "æ", "agrave": "à", "alefsym": "ℵ", "alpha": "α", "amp": "&", "and": "∧", "ang": "∠", "aring": "å", "asymp": "≈", "atilde": "ã", "auml": "ä", "bdquo": "„", "beta": "β", "brvbar": "¦", "bull": "•", "cap": "∩", "ccedil": "ç", "cedil": "¸", "cent": "¢", "chi": "χ", "circ": "ˆ", "clubs": "♣", "cong": "≅", "copy": "©", "crarr": "↵", "cup": "∪", "curren": "¤", "dArr": "⇓", "dagger": "†", "darr": "↓", "deg": "°", "delta": "δ", "diams": "♦", "divide": "÷", "eacute": "é", "ecirc": "ê", "egrave": "è", "empty": "∅", "emsp": "u{2003}", "ensp": "u{2002}", "epsilon": "ε", "equiv": "≡", "eta": "η", "eth": "ð", "euml": "ë", "euro": "€", "exist": "∃", "fnof": "ƒ", "forall": "∀", "frac12": "½", "frac14": "¼", "frac34": "¾", "frasl": "⁄", "gamma": "γ", "ge": "≥", "gt": ">", "hArr": "⇔", "harr": "↔", "hearts": "♥", "hellip": "…", "iacute": "í", "icirc": "î", "iexcl": "¡", "igrave": "ì", "image": "ℑ", "infin": "∞", "int": "∫", "iota": "ι", "iquest": "¿", "isin": "∈", "iuml": "ï", "kappa": "κ", "lArr": "⇐", "lambda": "λ", "lang": "〈", "laquo": "«", "larr": "←", "lceil": "⌈", "ldquo": "“", "le": "≤", "lfloor": "⌊", "lowast": "∗", "loz": "◊", "lrm": "u{200e}", "lsaquo": "‹", "lsquo": "‘", "lt": "<", "macr": "¯", "mdash": "—", "micro": "µ", "middot": "·", "minus": "−", "mu": "μ", "nabla": "∇", "nbsp": "\xa0", "ndash": "–", "ne": "≠", "ni": "∋", "not": "¬", "notin": "∉", "nsub": "⊄", "ntilde": "ñ", "nu": "ν", "oacute": "ó", "ocirc": "ô", "oelig": "œ", "ograve": "ò", "oline": "‾", "omega": "ω", "omicron": "ο", "oplus": "⊕", "or": "∨", "ordf": "ª", "ordm": "º", "oslash": "ø", "otilde": "õ", "otimes": "⊗", "ouml": "ö", "para": "¶", "part": "∂", "permil": "‰", "perp": "⊥", "phi": "φ", "pi": "π", "piv": "ϖ", "plusmn": "±", "pound": "£", "prime": "′", "prod": "∏", "prop": "∝", "psi": "ψ", "quot": "\"", "rArr": "⇒", "radic": "√", "rang": "〉", "raquo": "»", "rarr": "→", "rceil": "⌉", "rdquo": "”", "real": "ℜ", "reg": "®", "rfloor": "⌋", "rho": "ρ", "rlm": "u{200f}", "rsaquo": "›", "rsquo": "’", "sbquo": "‚", "scaron": "š", "sdot": "⋅", "sect": "§", "shy": "\xad", "sigma": "σ", "sigmaf": "ς", "sim": "∼", "spades": "♠", "sub": "⊂", "sube": "⊆", "sum": "∑", "sup": "⊃", "sup1": "¹", "sup2": "²", "sup3": "³", "supe": "⊇", "szlig": "ß", "tau": "τ", "there4": "∴", "theta": "θ", "thetasym": "ϑ", "thinsp": "u{2009}", "thorn": "þ", "tilde": "˜", "times": "×", "trade": "™", "uArr": "⇑", "uacute": "ú", "uarr": "↑", "ucirc": "û", "ugrave": "ù", "uml": "¨", "upsih": "ϒ", "upsilon": "υ", "uuml": "ü", "weierp": "℘", "xi": "ξ", "yacute": "ý", "yen": "¥", "yuml": "ÿ", "zeta": "ζ", "zwj": "u{200d}", "zwnj": "u{200c}"]
-    public let name2codepoint = ["AElig": 198, "Aacute": 193, "Acirc": 194, "Agrave": 192, "Alpha": 913, "Aring": 197, "Atilde": 195, "Auml": 196, "Beta": 914, "Ccedil": 199, "Chi": 935, "Dagger": 8225, "Delta": 916, "ETH": 208, "Eacute": 201, "Ecirc": 202, "Egrave": 200, "Epsilon": 917, "Eta": 919, "Euml": 203, "Gamma": 915, "Iacute": 205, "Icirc": 206, "Igrave": 204, "Iota": 921, "Iuml": 207, "Kappa": 922, "Lambda": 923, "Mu": 924, "Ntilde": 209, "Nu": 925, "OElig": 338, "Oacute": 211, "Ocirc": 212, "Ograve": 210, "Omega": 937, "Omicron": 927, "Oslash": 216, "Otilde": 213, "Ouml": 214, "Phi": 934, "Pi": 928, "Prime": 8243, "Psi": 936, "Rho": 929, "Scaron": 352, "Sigma": 931, "THORN": 222, "Tau": 932, "Theta": 920, "Uacute": 218, "Ucirc": 219, "Ugrave": 217, "Upsilon": 933, "Uuml": 220, "Xi": 926, "Yacute": 221, "Yuml": 376, "Zeta": 918, "aacute": 225, "acirc": 226, "acute": 180, "aelig": 230, "agrave": 224, "alefsym": 8501, "alpha": 945, "amp": 38, "and": 8743, "ang": 8736, "aring": 229, "asymp": 8776, "atilde": 227, "auml": 228, "bdquo": 8222, "beta": 946, "brvbar": 166, "bull": 8226, "cap": 8745, "ccedil": 231, "cedil": 184, "cent": 162, "chi": 967, "circ": 710, "clubs": 9827, "cong": 8773, "copy": 169, "crarr": 8629, "cup": 8746, "curren": 164, "dArr": 8659, "dagger": 8224, "darr": 8595, "deg": 176, "delta": 948, "diams": 9830, "divide": 247, "eacute": 233, "ecirc": 234, "egrave": 232, "empty": 8709, "emsp": 8195, "ensp": 8194, "epsilon": 949, "equiv": 8801, "eta": 951, "eth": 240, "euml": 235, "euro": 8364, "exist": 8707, "fnof": 402, "forall": 8704, "frac12": 189, "frac14": 188, "frac34": 190, "frasl": 8260, "gamma": 947, "ge": 8805, "gt": 62, "hArr": 8660, "harr": 8596, "hearts": 9829, "hellip": 8230, "iacute": 237, "icirc": 238, "iexcl": 161, "igrave": 236, "image": 8465, "infin": 8734, "int": 8747, "iota": 953, "iquest": 191, "isin": 8712, "iuml": 239, "kappa": 954, "lArr": 8656, "lambda": 955, "lang": 9001, "laquo": 171, "larr": 8592, "lceil": 8968, "ldquo": 8220, "le": 8804, "lfloor": 8970, "lowast": 8727, "loz": 9674, "lrm": 8206, "lsaquo": 8249, "lsquo": 8216, "lt": 60, "macr": 175, "mdash": 8212, "micro": 181, "middot": 183, "minus": 8722, "mu": 956, "nabla": 8711, "nbsp": 160, "ndash": 8211, "ne": 8800, "ni": 8715, "not": 172, "notin": 8713, "nsub": 8836, "ntilde": 241, "nu": 957, "oacute": 243, "ocirc": 244, "oelig": 339, "ograve": 242, "oline": 8254, "omega": 969, "omicron": 959, "oplus": 8853, "or": 8744, "ordf": 170, "ordm": 186, "oslash": 248, "otilde": 245, "otimes": 8855, "ouml": 246, "para": 182, "part": 8706, "permil": 8240, "perp": 8869, "phi": 966, "pi": 960, "piv": 982, "plusmn": 177, "pound": 163, "prime": 8242, "prod": 8719, "prop": 8733, "psi": 968, "quot": 34, "rArr": 8658, "radic": 8730, "rang": 9002, "raquo": 187, "rarr": 8594, "rceil": 8969, "rdquo": 8221, "real": 8476, "reg": 174, "rfloor": 8971, "rho": 961, "rlm": 8207, "rsaquo": 8250, "rsquo": 8217, "sbquo": 8218, "scaron": 353, "sdot": 8901, "sect": 167, "shy": 173, "sigma": 963, "sigmaf": 962, "sim": 8764, "spades": 9824, "sub": 8834, "sube": 8838, "sum": 8721, "sup": 8835, "sup1": 185, "sup2": 178, "sup3": 179, "supe": 8839, "szlig": 223, "tau": 964, "there4": 8756, "theta": 952, "thetasym": 977, "thinsp": 8201, "thorn": 254, "tilde": 732, "times": 215, "trade": 8482, "uArr": 8657, "uacute": 250, "uarr": 8593, "ucirc": 251, "ugrave": 249, "uml": 168, "upsih": 978, "upsilon": 965, "uuml": 252, "weierp": 8472, "xi": 958, "yacute": 253, "yen": 165, "yuml": 255, "zeta": 950, "zwj": 8205, "zwnj": 8204]
+    public let name2codepoint = [
+        "AElig": 198, "Aacute": 193, "Acirc": 194, "Agrave": 192, "Alpha": 913, "Aring": 197,
+        "Atilde": 195, "Auml": 196, "Beta": 914, "Ccedil": 199, "Chi": 935, "Dagger": 8225,
+        "Delta": 916, "ETH": 208, "Eacute": 201, "Ecirc": 202, "Egrave": 200, "Epsilon": 917,
+        "Eta": 919, "Euml": 203, "Gamma": 915, "Iacute": 205, "Icirc": 206, "Igrave": 204,
+        "Iota": 921, "Iuml": 207, "Kappa": 922, "Lambda": 923, "Mu": 924, "Ntilde": 209, "Nu": 925,
+        "OElig": 338, "Oacute": 211, "Ocirc": 212, "Ograve": 210, "Omega": 937, "Omicron": 927,
+        "Oslash": 216, "Otilde": 213, "Ouml": 214, "Phi": 934, "Pi": 928, "Prime": 8243, "Psi": 936,
+        "Rho": 929, "Scaron": 352, "Sigma": 931, "THORN": 222, "Tau": 932, "Theta": 920,
+        "Uacute": 218, "Ucirc": 219, "Ugrave": 217, "Upsilon": 933, "Uuml": 220, "Xi": 926,
+        "Yacute": 221, "Yuml": 376, "Zeta": 918, "aacute": 225, "acirc": 226, "acute": 180,
+        "aelig": 230, "agrave": 224, "alefsym": 8501, "alpha": 945, "amp": 38, "and": 8743,
+        "ang": 8736, "aring": 229, "asymp": 8776, "atilde": 227, "auml": 228, "bdquo": 8222,
+        "beta": 946, "brvbar": 166, "bull": 8226, "cap": 8745, "ccedil": 231, "cedil": 184,
+        "cent": 162, "chi": 967, "circ": 710, "clubs": 9827, "cong": 8773, "copy": 169,
+        "crarr": 8629, "cup": 8746, "curren": 164, "dArr": 8659, "dagger": 8224, "darr": 8595,
+        "deg": 176, "delta": 948, "diams": 9830, "divide": 247, "eacute": 233, "ecirc": 234,
+        "egrave": 232, "empty": 8709, "emsp": 8195, "ensp": 8194, "epsilon": 949, "equiv": 8801,
+        "eta": 951, "eth": 240, "euml": 235, "euro": 8364, "exist": 8707, "fnof": 402,
+        "forall": 8704, "frac12": 189, "frac14": 188, "frac34": 190, "frasl": 8260, "gamma": 947,
+        "ge": 8805, "gt": 62, "hArr": 8660, "harr": 8596, "hearts": 9829, "hellip": 8230,
+        "iacute": 237, "icirc": 238, "iexcl": 161, "igrave": 236, "image": 8465, "infin": 8734,
+        "int": 8747, "iota": 953, "iquest": 191, "isin": 8712, "iuml": 239, "kappa": 954,
+        "lArr": 8656, "lambda": 955, "lang": 9001, "laquo": 171, "larr": 8592, "lceil": 8968,
+        "ldquo": 8220, "le": 8804, "lfloor": 8970, "lowast": 8727, "loz": 9674, "lrm": 8206,
+        "lsaquo": 8249, "lsquo": 8216, "lt": 60, "macr": 175, "mdash": 8212, "micro": 181,
+        "middot": 183, "minus": 8722, "mu": 956, "nabla": 8711, "nbsp": 160, "ndash": 8211,
+        "ne": 8800, "ni": 8715, "not": 172, "notin": 8713, "nsub": 8836, "ntilde": 241, "nu": 957,
+        "oacute": 243, "ocirc": 244, "oelig": 339, "ograve": 242, "oline": 8254, "omega": 969,
+        "omicron": 959, "oplus": 8853, "or": 8744, "ordf": 170, "ordm": 186, "oslash": 248,
+        "otilde": 245, "otimes": 8855, "ouml": 246, "para": 182, "part": 8706, "permil": 8240,
+        "perp": 8869, "phi": 966, "pi": 960, "piv": 982, "plusmn": 177, "pound": 163, "prime": 8242,
+        "prod": 8719, "prop": 8733, "psi": 968, "quot": 34, "rArr": 8658, "radic": 8730,
+        "rang": 9002, "raquo": 187, "rarr": 8594, "rceil": 8969, "rdquo": 8221, "real": 8476,
+        "reg": 174, "rfloor": 8971, "rho": 961, "rlm": 8207, "rsaquo": 8250, "rsquo": 8217,
+        "sbquo": 8218, "scaron": 353, "sdot": 8901, "sect": 167, "shy": 173, "sigma": 963,
+        "sigmaf": 962, "sim": 8764, "spades": 9824, "sub": 8834, "sube": 8838, "sum": 8721,
+        "sup": 8835, "sup1": 185, "sup2": 178, "sup3": 179, "supe": 8839, "szlig": 223, "tau": 964,
+        "there4": 8756, "theta": 952, "thetasym": 977, "thinsp": 8201, "thorn": 254, "tilde": 732,
+        "times": 215, "trade": 8482, "uArr": 8657, "uacute": 250, "uarr": 8593, "ucirc": 251,
+        "ugrave": 249, "uml": 168, "upsih": 978, "upsilon": 965, "uuml": 252, "weierp": 8472,
+        "xi": 958, "yacute": 253, "yen": 165, "yuml": 255, "zeta": 950, "zwj": 8205, "zwnj": 8204,
+    ]
     public func name2cp(_ k: String) -> Int? {
         if k == "apos" {
             return ord("'")
@@ -96,24 +138,32 @@ public class HTML2Text: NodeVisitor {
          } */
     }
 
-    public var unifiable = ["rsquo": "'", "lsquo": "'", "rdquo": "\"", "ldquo": "\"",
-                            "copy": "(C)", "mdash": "--", "nbsp": " ", "rarr": "->", "larr": "<-", "middot": "*",
-                            "ndash": "-", "oelig": "oe", "aelig": "ae",
-                            "agrave": "a", "aacute": "a", "acirc": "a", "atilde": "a", "auml": "a", "aring": "a",
-                            "egrave": "e", "eacute": "e", "ecirc": "e", "euml": "e",
-                            "igrave": "i", "iacute": "i", "icirc": "i", "iuml": "i",
-                            "ograve": "o", "oacute": "o", "ocirc": "o", "otilde": "o", "ouml": "o",
-                            "ugrave": "u", "uacute": "u", "ucirc": "u", "uuml": "u",
-                            "lrm": "", "rlm": ""]
+    public var unifiable = [
+        "rsquo": "'", "lsquo": "'", "rdquo": "\"", "ldquo": "\"",
+        "copy": "(C)", "mdash": "--", "nbsp": " ", "rarr": "->", "larr": "<-", "middot": "*",
+        "ndash": "-", "oelig": "oe", "aelig": "ae",
+        "agrave": "a", "aacute": "a", "acirc": "a", "atilde": "a", "auml": "a", "aring": "a",
+        "egrave": "e", "eacute": "e", "ecirc": "e", "euml": "e",
+        "igrave": "i", "iacute": "i", "icirc": "i", "iuml": "i",
+        "ograve": "o", "oacute": "o", "ocirc": "o", "otilde": "o", "ouml": "o",
+        "ugrave": "u", "uacute": "u", "ucirc": "u", "uuml": "u",
+        "lrm": "", "rlm": "",
+    ]
 
-    public var unifiable_n: [Int: String] = [8217: "'", 8216: "'", 8221: "\"", 8220: "\"", 169: "(C)", 8212: "--", 8594: "->", 8592: "<-", 183: "*", 8211: "-", 339: "oe", 230: "ae", 224: "a", 225: "a", 226: "a", 227: "a", 228: "a", 229: "a", 232: "e", 233: "e", 234: "e", 235: "e", 236: "i", 237: "i", 238: "i", 239: "i", 242: "o", 243: "o", 244: "o", 245: "o", 246: "o", 249: "u", 250: "u", 251: "u", 252: "u", 8206: "", 8207: ""]
+    public var unifiable_n: [Int: String] = [
+        8217: "'", 8216: "'", 8221: "\"", 8220: "\"", 169: "(C)", 8212: "--", 8594: "->",
+        8592: "<-", 183: "*", 8211: "-", 339: "oe", 230: "ae", 224: "a", 225: "a", 226: "a",
+        227: "a", 228: "a", 229: "a", 232: "e", 233: "e", 234: "e", 235: "e", 236: "i", 237: "i",
+        238: "i", 239: "i", 242: "o", 243: "o", 244: "o", 245: "o", 246: "o", 249: "u", 250: "u",
+        251: "u", 252: "u", 8206: "", 8207: "",
+    ]
     /* {
      var _unifiable_n: [Int: String] = [:]
-
+    
      for k: String in unifiable.keys {
      _unifiable_n[name2cp(k)!] = unifiable[k]
      }
-
+    
      return _unifiable_n
      } */
 
@@ -133,7 +183,7 @@ public class HTML2Text: NodeVisitor {
 
     public func hn(_ tag: String) -> Int {
         if tag.first == "h", tag.count == 2 {
-            if let n = Int(tag.substring(startingAt: 1)), (1 ... 10).contains(n) {
+            if let n = Int(tag.substring(startingAt: 1)), (1...10).contains(n) {
                 return n
             }
         } else {
@@ -148,9 +198,10 @@ public class HTML2Text: NodeVisitor {
         var zarr: [[String]] = []
         for z: String in style.split(";") {
             if z.contains(":") {
-                zarr.append(z.split(separator: ":", maxSplits: 1).map { sub -> String in
-                    String(sub)
-                })
+                zarr.append(
+                    z.split(separator: ":", maxSplits: 1).map { sub -> String in
+                        String(sub)
+                    })
             }
         }
 
@@ -172,7 +223,7 @@ public class HTML2Text: NodeVisitor {
         data += ";"
 
         /* var importIndex = data.find("@import")
-
+        
          while importIndex != -1 {
          data = data[data.startIndex...String.Index(importIndex, within: data.utf8)] + data[data.find(";", importIndex) + 1...]
          importIndex = data.find("@import")
@@ -200,7 +251,9 @@ public class HTML2Text: NodeVisitor {
     }
 
     /// returns a hash of the "final" style attributes of the element
-    public func element_style(_ attrs: [String: String], _ style_def: [String: String], _ parent_style: [String: String]) -> [String: String] {
+    public func element_style(
+        _ attrs: [String: String], _ style_def: [String: String], _ parent_style: [String: String]
+    ) -> [String: String] {
         var style = parent_style
 
         if attrs.keys.contains("class") {
@@ -305,7 +358,7 @@ public class HTML2Text: NodeVisitor {
     public var body_width: Int = 0
 
     /// Don't show internal links (href="#local-anchor") -- corresponding link targets won't be visible in the plain text file anyway.
-    public var skip_internal_links: Bool = false // true
+    public var skip_internal_links: Bool = false  // true
 
     /// Use inline, rather than reference, formatting for images and links
     public var inline_links: Bool = false
@@ -333,10 +386,10 @@ public class HTML2Text: NodeVisitor {
     public var strong_mark = "**"
 
     public var out: String?
-    public var outtextlist: [String] = [] // empty list to store output characters before they are "joined"
+    public var outtextlist: [String] = []  // empty list to store output characters before they are "joined"
 
     public var quiet = false
-    public var p_p = 0 // number of newline character to print before next output
+    public var p_p = 0  // number of newline character to print before next output
     public var outcount = 0
     public var start = true
     public var space = false
@@ -364,9 +417,9 @@ public class HTML2Text: NodeVisitor {
     public var drop_white_space = false
     public var inheader = false
     public var headerid = ""
-    public var abbr_title: String? // current abbreviation definition
-    public var abbr_data: String? // last inner HTML (for abbr being defined)
-    public var abbr_list: [String: String] = [:] // stack of abbreviations to write later
+    public var abbr_title: String?  // current abbreviation definition
+    public var abbr_data: String?  // last inner HTML (for abbr being defined)
+    public var abbr_list: [String: String] = [:]  // stack of abbreviations to write later
     public var table = 0
     public var table_cols = 0
     public var table_cols_max = 0
@@ -396,10 +449,10 @@ public class HTML2Text: NodeVisitor {
 
         self.out = out
 
-        outtextlist = [] // empty list to store output characters before they are "joined"
+        outtextlist = []  // empty list to store output characters before they are "joined"
 
         quiet = false
-        p_p = 0 // number of newline character to print before next output
+        p_p = 0  // number of newline character to print before next output
         outcount = 0
         start = true
         space = false
@@ -424,9 +477,9 @@ public class HTML2Text: NodeVisitor {
         drop_white_space = false
         inheader = false
         headerid = ""
-        abbr_title = nil // current abbreviation definition
-        abbr_data = nil // last inner HTML (for abbr being defined)
-        abbr_list = [:] // stack of abbreviations to write later
+        abbr_title = nil  // current abbreviation definition
+        abbr_data = nil  // last inner HTML (for abbr being defined)
+        abbr_list = [:]  // stack of abbreviations to write later
         table = 0
         table_cols = 0
         table_cols_max = 0
@@ -451,10 +504,13 @@ public class HTML2Text: NodeVisitor {
     }
 
     public func head(_ node: Node, _: Int) throws {
-        handle_tag(node.nodeName(),
-                   dict(uniqueKeysWithValues: node.getAttributes()!.asList().flatMap { (attr: Attribute) -> [String: String] in
-                       [attr.getKey(): attr.getValue()]
-                   }), true)
+        handle_tag(
+            node.nodeName(),
+            dict(
+                uniqueKeysWithValues: node.getAttributes()!.asList().flatMap {
+                    (attr: Attribute) -> [String: String] in
+                    [attr.getKey(): attr.getValue()]
+                }), true)
     }
 
     public func tail(_ node: Node, _: Int) throws {
@@ -492,7 +548,8 @@ public class HTML2Text: NodeVisitor {
             nbsp = " "
         }
 
-        outtext = outtext.replacingOccurrences(of: #"(\[\^(.*?)\]\: (.*?)) ↩"#, with: "$1", options: .regularExpression) // Remove ↩ from footnote definitions
+        outtext = outtext.replacingOccurrences(
+            of: #"(\[\^(.*?)\]\: (.*?)) ↩"#, with: "$1", options: .regularExpression)  // Remove ↩ from footnote definitions
         outtext = outtext.replace("&nbsp_place_holder;", nbsp)
 
         return outtext
@@ -549,12 +606,14 @@ public class HTML2Text: NodeVisitor {
 
     public func drop_last(_ nLetters: Int) {
         if !quiet, nLetters < outtext.count {
-            outtext = outtext.substring(endingAt: outtext.count - nLetters) // [...(-nLetters)]
+            outtext = outtext.substring(endingAt: outtext.count - nLetters)  // [...(-nLetters)]
         }
     }
 
     /// handles various text emphases
-    public func handle_emphasis(_ start: Bool, _ tag_style: [String: String], _ parent_style: [String: String]) {
+    public func handle_emphasis(
+        _ start: Bool, _ tag_style: [String: String], _ parent_style: [String: String]
+    ) {
         let tag_emphasis = google_text_emphasis(tag_style)
         let parent_emphasis = google_text_emphasis(parent_style)
 
@@ -562,7 +621,8 @@ public class HTML2Text: NodeVisitor {
         let strikethrough = tag_emphasis.contains("line-through") && hide_strikethrough
         let bold = tag_emphasis.contains("bold") && !parent_emphasis.contains("bold")
         let italic = tag_emphasis.contains("italic") && !parent_emphasis.contains("italic")
-        let fixed = google_fixed_width_font(tag_style) && !google_fixed_width_font(parent_style) && !pre
+        let fixed =
+            google_fixed_width_font(tag_style) && !google_fixed_width_font(parent_style) && !pre
 
         if start {
             // crossed-out text must be handled before other attributes
@@ -677,7 +737,9 @@ public class HTML2Text: NodeVisitor {
 
         if tag == "#text" {
             if start, let text = attrs!["text"], text != "\n " {
-                if let lastItem = outtextlist.last, lastItem.count > 1, lastItem.substring(endingAt: 2) == "[^", Int(text) != nil {
+                if let lastItem = outtextlist.last, lastItem.count > 1,
+                    lastItem.substring(endingAt: 2) == "[^", Int(text) != nil
+                {
                     // Clean Footnote number
                     return
                 }
@@ -702,7 +764,7 @@ public class HTML2Text: NodeVisitor {
 
                 inheader = false
                 headerid = ""
-                return // prevent redundant emphasis marks on headers
+                return  // prevent redundant emphasis marks on headers
             }
         }
 
@@ -755,7 +817,7 @@ public class HTML2Text: NodeVisitor {
         }
 
         if ["body"].contains(tag) {
-            quiet = 0 // sites like 9rules.com never close <head>
+            quiet = 0  // sites like 9rules.com never close <head>
         }
 
         if tag == "blockquote" {
@@ -794,7 +856,7 @@ public class HTML2Text: NodeVisitor {
         }
 
         if ["code", "tt"].contains(tag), !pre {
-            o("`") // TODO: `` `this` ``
+            o("`")  // TODO: `` `this` ``
         }
 
         if tag == "abbr" {
@@ -817,7 +879,10 @@ public class HTML2Text: NodeVisitor {
 
         if tag == "a", !ignore_links {
             if start {
-                if has_key(attrs!, "href"), !(skip_internal_links && attrs!["href"]!.startswith("#")), attrs!["href"]!.substring(endingAt: 3) != "#fn" {
+                if has_key(attrs!, "href"),
+                    !(skip_internal_links && attrs!["href"]!.startswith("#")),
+                    attrs!["href"]!.substring(endingAt: 3) != "#fn"
+                {
                     astack.append(attrs!)
                     maybe_automatic_link = attrs!["href"]
                     maybe_linked_image = true
@@ -891,11 +956,11 @@ public class HTML2Text: NodeVisitor {
         }
 
         if tag == "dd", start {
-            o(":")
+            o(": ")
         }
 
         if tag == "dd", !start {
-            p()
+            o("\n")
         }
 
         if ["ol", "ul"].contains(tag) {
@@ -960,7 +1025,7 @@ public class HTML2Text: NodeVisitor {
                     nest_count = list.count
                 }
 
-                o("    " * (nest_count - 1)) // TODO: line up <ol><li>s > 9 correctly.
+                o("    " * (nest_count - 1))  // TODO: line up <ol><li>s > 9 correctly.
 
                 if li["name"] == "ul" {
                     o(ul_item_mark + " ")
@@ -971,8 +1036,11 @@ public class HTML2Text: NodeVisitor {
                 }
 
                 if isFootnote {
-                    supdeflist.append(["id": attrs!["id"]!, "outcount": String(outtextlist.count - 1)])
-                    outtextlist[outtextlist.count - 1] = "[^\(attrs!["id"]!.substring(startingAt: 3))]: "
+                    supdeflist.append([
+                        "id": attrs!["id"]!, "outcount": String(outtextlist.count - 1),
+                    ])
+                    outtextlist[outtextlist.count - 1] =
+                        "[^\(attrs!["id"]!.substring(startingAt: 3))]: "
                 }
 
                 self.start = true
@@ -1084,7 +1152,7 @@ public class HTML2Text: NodeVisitor {
 
             if startpre {
                 // self.out(" :") // TODO: not output when already one there
-                if !data.startswith("\n") { // <pre>stuff...
+                if !data.startswith("\n") {  // <pre>stuff...
                     data = "\n" + data
                 }
             }
@@ -1111,7 +1179,7 @@ public class HTML2Text: NodeVisitor {
             if startpre {
                 startpre = false
                 if list.count > 0 {
-                    data = data.lstrip("\n") // use existing initial indentation
+                    data = data.lstrip("\n")  // use existing initial indentation
                 }
             }
 
@@ -1165,7 +1233,10 @@ public class HTML2Text: NodeVisitor {
                         if fulllink!.startswith("/") {
                             fulllink = "\(baseurl)\(fulllink!)"
                         }
-                        outtextf("[" + String(link["count"]!) + "]: " + URL(string: fulllink!.stringByAddingPercentEncodingForFormUrlencoded()!)!.absoluteString.removingPercentEncoding!)
+                        outtextf(
+                            "[" + String(link["count"]!) + "]: " + URL(
+                                string: fulllink!.stringByAddingPercentEncodingForFormUrlencoded()!)!
+                                .absoluteString.removingPercentEncoding!)
 
                         if has_key(link, "title") {
                             outtextf(" \"" + link["title"]! + "\"")
@@ -1178,7 +1249,7 @@ public class HTML2Text: NodeVisitor {
                 }
 
                 if a != newa {
-                    outtextf("\n") // Don't need an extra line when nothing was done.
+                    outtextf("\n")  // Don't need an extra line when nothing was done.
                 }
 
                 a = newa
@@ -1206,7 +1277,7 @@ public class HTML2Text: NodeVisitor {
 
         if style {
             let cssdata = dumb_css_parser(data).first!
-            style_def = cssdata.value // .updateValue(cssdata.value, forKey: cssdata.key)
+            style_def = cssdata.value  // .updateValue(cssdata.value, forKey: cssdata.key)
         }
 
         if maybe_automatic_link != nil {
@@ -1279,7 +1350,9 @@ public class HTML2Text: NodeVisitor {
         var nest_count = 0
 
         if style.keys.contains("margin-left") {
-            nest_count = Int(style["margin-left"]!.substring(endingAt: style["margin-left"]!.count - 2))! / google_list_indent
+            nest_count =
+                Int(style["margin-left"]!.substring(endingAt: style["margin-left"]!.count - 2))!
+                / google_list_indent
 
             return nest_count
         }
@@ -1331,31 +1404,31 @@ public class HTML2Text: NodeVisitor {
     var md_chars_matcher = #"([\\\[\]\(\)])"#
     var md_chars_matcher_all = #"([`\*_{}\[\]\(\)#!])"#
     var md_dot_matcher = #"""
-    (?m)
-    ^             // start of line
-    (\s*\d+)      // optional whitespace and a number
-    (\.)          // dot
-    (?=\s)        // lookahead assert whitespace
-    """# // , re.MULTILINE | re.VERBOSE)
+        (?m)
+        ^             // start of line
+        (\s*\d+)      // optional whitespace and a number
+        (\.)          // dot
+        (?=\s)        // lookahead assert whitespace
+        """#  // , re.MULTILINE | re.VERBOSE)
     var md_plus_matcher = #"""
-    (?m)
-    ^
-    (\s*)
-    (\+)
-    (?=\s)
-    """# // , flags=re.MULTILINE | re.VERBOSE)
+        (?m)
+        ^
+        (\s*)
+        (\+)
+        (?=\s)
+        """#  // , flags=re.MULTILINE | re.VERBOSE)
     var md_dash_matcher = #"""
-    ^
-    (\s*)
-    (-)
-    (?=\s|\-)     // followed by whitespace (bullet list, or spaced out hr)
-    // or another dash (header or hr)
-    """# // , flags=re.MULTILINE | re.VERBOSE)
+        ^
+        (\s*)
+        (-)
+        (?=\s|\-)     // followed by whitespace (bullet list, or spaced out hr)
+        // or another dash (header or hr)
+        """#  // , flags=re.MULTILINE | re.VERBOSE)
     var slash_chars = #"\`*_{}[]()#+-.!"#
     var md_backslash_matcher = """
-    (\\)          // match one slash
-    (?=[\(#"\`*_{}[]()#+-.!"#)])      // followed by a char that requires escaping
-    """ // , flags = re.VERBOSE)
+        (\\)          // match one slash
+        (?=[\(#"\`*_{}[]()#+-.!"#)])      // followed by a char that requires escaping
+        """  // , flags = re.VERBOSE)
 
     public func skipwrap(_ para: String) -> Bool {
         // If the text begins with four spaces or one tab, it's a code block; don't wrap
@@ -1376,7 +1449,9 @@ public class HTML2Text: NodeVisitor {
         }
 
         // If the text begins with a single -, *, or +, followed by a space, or an integer, followed by a ., followed by a space (in either case optionally preceeded by whitespace), it's a list; don't wrap.
-        if re.match(ordered_list_matcher, stripped).boolValue || re.match(unordered_list_matcher, stripped).boolValue {
+        if re.match(ordered_list_matcher, stripped).boolValue
+            || re.match(unordered_list_matcher, stripped).boolValue
+        {
             return true
         }
 
@@ -1451,7 +1526,7 @@ public class HTML2Text: NodeVisitor {
         }
 
         // single replacement
-        let text = re.sub(pattern, fixheadline, input) // , re.S)
+        let text = re.sub(pattern, fixheadline, input)  // , re.S)
 
         return text
     }
@@ -1471,7 +1546,7 @@ public class HTML2Text: NodeVisitor {
         }
 
         // single replacement
-        let text = re.sub(pattern, fixbracket, input) // , re.S)
+        let text = re.sub(pattern, fixbracket, input)  // , re.S)
 
         return text
     }
@@ -1500,7 +1575,7 @@ public class HTML2Text: NodeVisitor {
         var formatrow = 0
 
         // First, find the separator line.
-        for i in 0 ... rows {
+        for i in 0...rows {
             if Set(lines[i]).isSubset(of: "|:.- ") {
                 formatline = lines[i]
                 formatrow = i
@@ -1569,7 +1644,7 @@ public class HTML2Text: NodeVisitor {
         // Append cells to rows that don't have enough.
         rows = content.count
 
-        for i in 0 ... rows {
+        for i in 0...rows {
             while content[i].count < columns {
                 content[i].append("")
             }
@@ -1578,7 +1653,7 @@ public class HTML2Text: NodeVisitor {
         // Get the width of the content in each column. The minimum width will be 2, because that's the shortest length of a formatting string and because that matches an empty column with "bumper" spaces.
         var widths = Array(repeating: 2, count: columns + 1)
         for row in content {
-            for i in 0 ... columns {
+            for i in 0...columns {
                 widths[i] = max(row[i].count, widths[i])
             }
         }
@@ -1611,7 +1686,12 @@ public class HTML2Text: NodeVisitor {
         return formatted.joined(separator: "\n")
     }
 
-    public func main(baseurl: String = "", data: String = "", ignoreEmphasis: Bool = false, ignoreLinks: Bool = false, ignoreImages: Bool = false, googleDoc: Bool = false, dashUnorderedList: Bool = false, asteriskEmphasis: Bool = false, bodyWidth: Int = 0, listIndent: Int = 36, hideStrikethrough: Bool = false, escapeAll: Bool = false) -> String {
+    public func main(
+        baseurl: String = "", data: String = "", ignoreEmphasis: Bool = false,
+        ignoreLinks: Bool = false, ignoreImages: Bool = false, googleDoc: Bool = false,
+        dashUnorderedList: Bool = false, asteriskEmphasis: Bool = false, bodyWidth: Int = 0,
+        listIndent: Int = 36, hideStrikethrough: Bool = false, escapeAll: Bool = false
+    ) -> String {
         // var baseurl = ""
 
         //        p = optparse.OptionParser("%prog [(filename|url) [encoding]]",
@@ -1643,15 +1723,15 @@ public class HTML2Text: NodeVisitor {
         // var encoding = "utf-8"
         /* if args.count > 0 {
          var file_ = args[0]
-
+        
          if args.count == 2 {
          encoding = args[1]
          }
-
+        
          if args.count > 2 {
          p.error("Too many arguments")
          }
-
+        
          if file_.startswith("http://") || file_.startswith("https://") {
          baseurl = file_
          j = urllib.urlopen(baseurl)
@@ -1703,17 +1783,21 @@ public class HTML2Text: NodeVisitor {
 
         // wrapwrite(fixheadlines(normalize_tables(h.handle(data.replace("u{201c}", "\"").replace("u{201d}", "\"").replace("u{2018}","'").replace("u{2019}","'")))))
         // return wrapwrite(fixheadlines(fixbrackets(h.handle(data.replace("u{201c}", "\"").replace("u{201d}", "\"").replace("u{2018}","'").replace("u{2019}","'")))))
-        var input = data.replace("u{201c}", "\"").replace("u{201d}", "\"").replace("u{2018}", "'").replace("u{2019}", "'")
-        input = input.replace("’", "'").replace("”", "\"").replace("“", "\"").replace("‘", "'").replace("–", "--").replace("—", "--")
+        var input = data.replace("u{201c}", "\"").replace("u{201d}", "\"").replace("u{2018}", "'")
+            .replace("u{2019}", "'")
+        input = input.replace("’", "'").replace("”", "\"").replace("“", "\"").replace("‘", "'")
+            .replace("–", "--").replace("—", "--")
         return fixheadlines(fixbrackets(h.handle(input)))
     }
 
     public static func process(html: String, baseurl: String?) -> String {
-        let h = HTML2Text(baseurl: baseurl!)
+        let base = baseurl ?? ""
+        let h = HTML2Text(baseurl: base)
 
-        let html2textresult = h.main(baseurl: baseurl!, data: html)
+        let html2textresult = h.main(baseurl: base, data: html)
 
-        var result = html2textresult.replacingOccurrences(of: #"([\*\-\+] .*?)\n+(?=[\*\-\+] )"#, with: "$1\n", options: .regularExpression)
+        var result = html2textresult.replacingOccurrences(
+            of: #"([\*\-\+] .*?)\n+(?=[\*\-\+] )"#, with: "$1\n", options: .regularExpression)
         result = result.replacingOccurrences(of: #"(?m)\n{2,}"#, with: "\n\n")
         result = result.replacingOccurrences(of: "__BR__", with: "  ")
 
