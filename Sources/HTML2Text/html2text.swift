@@ -70,7 +70,7 @@ public class HTML2Text: NodeVisitor {
     public let SKIP_INTERNAL_LINKS = true  // true
 
     // Use inline, rather than reference, formatting for images and links
-    public let INLINE_LINKS = false
+    public let INLINE_LINKS = true
 
     // Number of pixels Google indents nested lists
     public let GOOGLE_LIST_INDENT = 36
@@ -159,11 +159,11 @@ public class HTML2Text: NodeVisitor {
     ]
     /* {
      var _unifiable_n: [Int: String] = [:]
-    
+
      for k: String in unifiable.keys {
      _unifiable_n[name2cp(k)!] = unifiable[k]
      }
-    
+
      return _unifiable_n
      } */
 
@@ -223,7 +223,7 @@ public class HTML2Text: NodeVisitor {
         data += ";"
 
         /* var importIndex = data.find("@import")
-        
+
          while importIndex != -1 {
          data = data[data.startIndex...String.Index(importIndex, within: data.utf8)] + data[data.find(";", importIndex) + 1...]
          importIndex = data.find("@import")
@@ -331,11 +331,13 @@ public class HTML2Text: NodeVisitor {
 
     /// extract numbering from list element attributes
     public func list_numbering_start(_ attrs: [String: String]) -> Int {
-        if attrs.keys.contains("start") {
-            return Int(attrs["start"]!)! - 1
-        } else {
+        guard let raw = attrs["start"]?.trimmingCharacters(in: .whitespacesAndNewlines),
+              !raw.isEmpty,
+              let value = Int(raw) else {
             return 0
         }
+        // HTML "start" is 1-based; our internal index is 0-based.
+        return max(value - 1, 0)
     }
 
     // }
@@ -361,7 +363,7 @@ public class HTML2Text: NodeVisitor {
     public var skip_internal_links: Bool = false  // true
 
     /// Use inline, rather than reference, formatting for images and links
-    public var inline_links: Bool = false
+    public var inline_links: Bool = true
 
     /// Number of pixels Google indents nested lists
     public var google_list_indent: Int = 36
@@ -1723,15 +1725,15 @@ public class HTML2Text: NodeVisitor {
         // var encoding = "utf-8"
         /* if args.count > 0 {
          var file_ = args[0]
-        
+
          if args.count == 2 {
          encoding = args[1]
          }
-        
+
          if args.count > 2 {
          p.error("Too many arguments")
          }
-        
+
          if file_.startswith("http://") || file_.startswith("https://") {
          baseurl = file_
          j = urllib.urlopen(baseurl)
