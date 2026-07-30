@@ -28,11 +28,7 @@ import SwiftSoup
  //   Support decoded entities with unifiable. */
 public class HTML2Text: NodeVisitor {
     public func has_key(_ x: [String: String], _ y: String) -> Bool {
-        if x.has_key(y) {
-            return x.has_key(y)
-        } else {
-            return x.values.contains(y)
-        }
+        return x.has_key(y)
     }
 
 //
@@ -203,16 +199,15 @@ public class HTML2Text: NodeVisitor {
     public func element_style(_ attrs: [String: String], _ style_def: [String: String], _ parent_style: [String: String]) -> [String: String] {
         var style = parent_style
 
-        if attrs.keys.contains("class") {
-            for css_class in attrs["class"]!.split() {
+        if let classNames = attrs["class"] {
+            for css_class in classNames.split() {
                 if let css_style = style_def["." + css_class] {
                     style.updateValue(css_style, forKey: css_class)
                 }
             }
         }
 
-        if attrs.keys.contains("style") {
-            let immediate_style = dumb_property_dict(attrs["style"]!).first!
+        if let styleAttribute = attrs["style"], let immediate_style = dumb_property_dict(styleAttribute).first {
             // style.update(immediate_style, forKey: "style")
             style.updateValue(immediate_style.value, forKey: immediate_style.key)
         }
@@ -441,18 +436,23 @@ public class HTML2Text: NodeVisitor {
     /// Feed some text to the parser. It is processed insofar as it consists of complete elements; incomplete data is buffered until more data is fed or close() is called.
     public func feed(_ data: String) {
         self.data += data.replace("</' + 'script>", "</ignore>")
-        if baseurl != "" {
-            document = try! SwiftSoup.parse(data, baseurl)
-        } else {
-            document = try! SwiftSoup.parse(data)
-        }
+        do {
+            if baseurl != "" {
+                document = try SwiftSoup.parse(data, baseurl)
+            } else {
+                document = try SwiftSoup.parse(data)
+            }
 
-        try! document?.traverse(self)
+            try document?.traverse(self)
+        } catch {
+            return
+        }
     }
 
     public func head(_ node: Node, _: Int) throws {
+        let attrs = node.getAttributes()?.asList() ?? []
         handle_tag(node.nodeName(),
-                   dict(uniqueKeysWithValues: node.getAttributes()!.asList().flatMap { (attr: Attribute) -> [String: String] in
+                   dict(uniqueKeysWithValues: attrs.flatMap { (attr: Attribute) -> [String: String] in
                        [attr.getKey(): attr.getValue()]
                    }), true)
     }
@@ -1156,17 +1156,20 @@ public class HTML2Text: NodeVisitor {
                         continue
                     }
 
-                    if outcount > Int(link["outcount"]!)! {
-                        var fulllink = link["href"]
+                    if let outcountString = link["outcount"], let linkOutcount = Int(outcountString), outcount > linkOutcount {
+                        var fulllink = link["href"] ?? ""
 
-                        if fulllink!.startswith("//") {
-                            fulllink = "https:\(fulllink!)"
+                        if fulllink.startswith("//") {
+                            fulllink = "https:\(fulllink)"
                         }
 
-                        if fulllink!.startswith("/") {
-                            fulllink = "\(baseurl)\(fulllink!)"
+                        if fulllink.startswith("/") {
+                            fulllink = "\(baseurl)\(fulllink)"
                         }
-                        outtextf("[" + String(link["count"]!) + "]: " + URL(string: fulllink!.stringByAddingPercentEncodingForFormUrlencoded()!)!.absoluteString.removingPercentEncoding!)
+
+                        let encodedLink = fulllink.stringByAddingPercentEncodingForFormUrlencoded() ?? fulllink
+                        let linkDestination = URL(string: encodedLink)?.absoluteString.removingPercentEncoding ?? fulllink
+                        outtextf("[" + String(link["count"] ?? "") + "]: " + linkDestination)
 
                         if has_key(link, "title") {
                             outtextf(" \"" + link["title"]! + "\"")
@@ -1205,8 +1208,7 @@ public class HTML2Text: NodeVisitor {
             quiet = false
         }
 
-        if style {
-            let cssdata = dumb_css_parser(data).first!
+        if style, let cssdata = dumb_css_parser(data).first {
             style_def = cssdata.value // .updateValue(cssdata.value, forKey: cssdata.key)
         }
 
@@ -1229,17 +1231,23 @@ public class HTML2Text: NodeVisitor {
     }
 
     public func charref(_ name: String) -> String {
-        var c: Int
-        if ["x", "X"].contains(name.substring(startingAt: 1)) {
-            c = Int(name.substring(startingAt: 1), radix: 16)!
+        let c: Int?
+        if ["x", "X"].contains(name.substring(endingAt: 1)) {
+            c = Int(name.substring(startingAt: 1), radix: 16)
         } else {
-            c = Int(name)!
+            c = Int(name)
+        }
+
+        guard let c = c else {
+            return "&#\(name);"
         }
 
         if unifiable_n.keys.contains(c), !unicode_snob {
             return unifiable_n[c]!
+        } else if let scalar = UnicodeScalar(c) {
+            return String(Character(scalar))
         } else {
-            return chr(c)
+            return "&#\(name);"
         }
     }
 
@@ -1252,8 +1260,10 @@ public class HTML2Text: NodeVisitor {
              } catch {
              return "&" + c + ";"
              } */
+        } else if let codepoint = name2cp(c), let scalar = UnicodeScalar(codepoint) {
+            return String(Character(scalar))
         } else {
-            return chr(name2cp(c)!)
+            return "&" + c + ";"
         }
     }
 
@@ -1279,8 +1289,8 @@ public class HTML2Text: NodeVisitor {
     public func google_nest_count(_ style: [String: String]) -> Int {
         var nest_count = 0
 
-        if style.keys.contains("margin-left") {
-            nest_count = Int(style["margin-left"]!.substring(endingAt: style["margin-left"]!.count - 2))! / google_list_indent
+        if let marginLeft = style["margin-left"], marginLeft.count > 2, let margin = Int(marginLeft.substring(endingAt: marginLeft.count - 2)) {
+            nest_count = margin / google_list_indent
 
             return nest_count
         }
@@ -1708,9 +1718,10 @@ public class HTML2Text: NodeVisitor {
     }
 
     public static func process(html: String, baseurl: String?) -> String {
-        let h = HTML2Text(baseurl: baseurl!)
+        let baseurl = baseurl ?? ""
+        let h = HTML2Text(baseurl: baseurl)
 
-        let html2textresult = h.main(baseurl: baseurl!, data: html)
+        let html2textresult = h.main(baseurl: baseurl, data: html)
 
         var result = html2textresult.replacingOccurrences(of: #"([\*\-\+] .*?)\n+(?=[\*\-\+] )"#, with: "$1\n", options: .regularExpression)
         result = result.replacingOccurrences(of: #"(?m)\n{2,}"#, with: "\n\n")

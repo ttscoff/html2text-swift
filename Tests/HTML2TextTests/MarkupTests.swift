@@ -149,6 +149,46 @@ final class MarkupTests: XCTestCase {
         XCTAssert(result == "5. First\n6. Second\n")
     }
 
+    func testScriptDataNodeDoesNotCrash() throws {
+        let html = """
+<p>Visible</p><script>let value = nil;</script><p>Text</p>
+"""
+        let h = HTML2Text(baseurl: "")
+        let result = h.main(data: html)
+        XCTAssert(result == "Visible\n\nText\n")
+    }
+    
+    func testNilBaseURLDoesNotCrash() throws {
+        let result = HTML2Text.process(html: "<p>Visible</p>", baseurl: nil)
+        XCTAssert(result == "Visible\n")
+    }
+    
+    func testEmptyInlineStyleDoesNotCrash() throws {
+        let h = HTML2Text(baseurl: "")
+        let result = h.main(data: "<p style=\"\">Visible</p>", googleDoc: true)
+        XCTAssert(result == "Visible\n")
+    }
+    
+    func testEmptyStyleBlockDoesNotCrash() throws {
+        let h = HTML2Text(baseurl: "")
+        let result = h.main(data: "<style></style><p>Visible</p>", googleDoc: true)
+        XCTAssert(result == "Visible\n")
+    }
+    
+    func testInvalidEntitiesDoNotCrash() throws {
+        let h = HTML2Text(baseurl: "")
+        XCTAssert(h.entityref("notreal") == "&notreal;")
+        XCTAssert(h.charref("xzz") == "&#xzz;")
+        XCTAssert(h.charref("9999999999999999999999999") == "&#9999999999999999999999999;")
+    }
+    
+    func testOddReferenceLinkDoesNotCrash() throws {
+        let h = HTML2Text(baseurl: "")
+        let result = h.main(data: "<a href=\"http://exa mple.com/a|b\">bad</a>")
+        XCTAssert(result.contains("bad"))
+        XCTAssert(result.contains("http://exa+mple.com/a|b"))
+    }
+    
     /// Should remain as plain URL
     func testNakedURL() throws {
         let html = """
