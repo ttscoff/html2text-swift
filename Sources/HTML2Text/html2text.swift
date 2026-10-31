@@ -702,6 +702,19 @@ public class HTML2Text: NodeVisitor {
         }
     }
 
+    private func isFootnoteFragmentHref(_ href: String) -> Bool {
+        guard href.hasPrefix("#") else {
+            return false
+        }
+        let fragment = String(href.dropFirst()).lowercased()
+        if fragment.hasPrefix("fnref") || fragment.hasPrefix("footref")
+            || fragment.hasPrefix("footnote")
+        {
+            return true
+        }
+        return fragment.hasPrefix("fn")
+    }
+
     public func handle_tag(_ tag: String, _ attrs: [String: String]? = [:], _ start: Bool) {
         // attrs = fixattrs(attrs)
         var attrs = attrs
@@ -881,42 +894,48 @@ public class HTML2Text: NodeVisitor {
 
         if tag == "a", !ignore_links {
             if start {
-                if has_key(attrs!, "href"),
-                    !(skip_internal_links && attrs!["href"]!.startswith("#")),
-                    attrs!["href"]!.substring(endingAt: 3) != "#fn"
-                {
-                    astack.append(attrs!)
-                    maybe_automatic_link = attrs!["href"]
-                    maybe_linked_image = true
+                if has_key(attrs!, "href") {
+                    let href = attrs!["href"]!
+                    let isFootnote = isFootnoteFragmentHref(href)
+                    if skip_internal_links && href.startswith("#") && !isFootnote {
+                        astack.append([:])
+                    } else if !href.startswith("#") || isFootnote {
+                        astack.append(attrs!)
+                        maybe_automatic_link = href
+                        maybe_linked_image = true
+                    } else {
+                        astack.append([:])
+                    }
                 } else {
                     astack.append([:])
                 }
             } else {
+                // Still set only when no `[` was written: an empty anchor, or an
+                // automatic link that already emitted <url>. Linked images clear
+                // maybe_linked_image after writing their opening `[`.
+                let suppressReference = maybe_automatic_link != nil && maybe_linked_image
                 maybe_automatic_link = nil
                 maybe_linked_image = false
                 if astack.count > 0 {
-                    if var a = astack.pop() {
-                        if maybe_automatic_link != nil {
-                            maybe_automatic_link = nil
-                        } else if a.count > 0 {
-                            if inline_links {
-                                o("](" + escape_md(a["href"]!) + ")")
+                    if var a = astack.pop(), !suppressReference, a.count > 0 {
+                        let href = a["href"]!
+                        if isFootnoteFragmentHref(href) || inline_links {
+                            o("](" + escape_md(href) + ")")
+                        } else {
+                            let i = previousIndex(a)
+
+                            if i != nil {
+                                a = self.a[i!]
                             } else {
-                                let i = previousIndex(a)
+                                acount += 1
 
-                                if i != nil {
-                                    a = self.a[i!]
-                                } else {
-                                    acount += 1
+                                a["count"] = String(acount)
+                                a["outcount"] = String(outcount)
 
-                                    a["count"] = String(acount)
-                                    a["outcount"] = String(outcount)
-
-                                    self.a.append(a)
-                                }
-
-                                o("][" + String(a["count"]!) + "]")
+                                self.a.append(a)
                             }
+
+                            o("][" + String(a["count"]!) + "]")
                         }
                     }
                 }
@@ -1287,7 +1306,14 @@ public class HTML2Text: NodeVisitor {
             if href == data, href!.matches(absolute_url_matcher) {
                 o("<" + data + ">")
                 return
+            } else if maybe_linked_image,
+                data.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            {
+                // Linked images emit `[![alt][n]][m]` from the img handler; skip
+                // whitespace between `<a>` and `<img>` so we don't get `[ [![alt][n]`.
+                return
             } else {
+                maybe_linked_image = false
                 o("[")
                 maybe_automatic_link = nil
             }
@@ -1515,42 +1541,19 @@ public class HTML2Text: NodeVisitor {
 
     public func fixheadlines(_ input: String) -> String {
         let pattern = #"(?:\[\n*)?(#+) \[?(.*?)\n+\]([\[\(].*?[\]\)])"#
-
-        // $1 [$2]$3
-        var fixheadline: String {
-            let match = re.search(pattern, input)
-
-            let group1 = match.group(1) ?? ""
-            let group2 = match.group(2) ?? ""
-            let group3 = match.group(3) ?? ""
-
-            return group1 + " [" + group2 + "]" + group3
-        }
-
-        // single replacement
-        let text = re.sub(pattern, fixheadline, input)  // , re.S)
-
-        return text
+        // Replace each match from its own groups. Searching the whole
+        // string inside the replacement reused the first headline everywhere.
+        return re.sub(pattern, #"\1 [\2]\3"#, input)
     }
 
     public func fixbrackets(_ input: String) -> String {
-        let pattern = #"(\s*)(`|[\*_]+)\[([^\]]+\1\])"#
-
-        // $1 [$2]$3
-        var fixbracket: String {
-            let match = re.search(pattern, input)
-
-            let group1 = match.group(1) ?? ""
-            let group2 = match.group(2) ?? ""
-            let group3 = match.group(3) ?? ""
-
-            return group1 + "[" + group2 + group3
-        }
-
-        // single replacement
-        let text = re.sub(pattern, fixbracket, input)  // , re.S)
-
-        return text
+        // Emphasis that opens before a link and closes inside it:
+        // **[text**](url) -> [**text**](url)
+        // A bold link that is already **[text](url)** must stay as-is.
+        // The previous replacement searched the whole string once and
+        // pasted the first link's label into every later link.
+        let pattern = #"(\s*)(`|[\*_]+)\[([^\]]*?)(\2)\]"#
+        return re.sub(pattern, #"\1[\2\3\4]"#, input)
     }
 
     /// Justify a string to length n according to type.
