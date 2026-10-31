@@ -496,23 +496,36 @@ public class HTML2Text: NodeVisitor {
     /// Feed some text to the parser. It is processed insofar as it consists of complete elements; incomplete data is buffered until more data is fed or close() is called.
     public func feed(_ data: String) {
         self.data += data.replace("</' + 'script>", "</ignore>")
-        if baseurl != "" {
-            document = try! SwiftSoup.parse(data, baseurl)
-        } else {
-            document = try! SwiftSoup.parse(data)
+        do {
+            if baseurl != "" {
+                document = try SwiftSoup.parse(data, baseurl)
+            } else {
+                document = try SwiftSoup.parse(data)
+            }
+            try document?.traverse(self)
+        } catch {
+            return
         }
+    }
 
-        try! document?.traverse(self)
+    /// First value wins. A repeated attribute is legal HTML, and
+    /// Dictionary(uniqueKeysWithValues:) aborts the process when it sees one.
+    func firstAttributeValues(_ pairs: [(String, String)]) -> [String: String] {
+        var attrs: [String: String] = [:]
+        for (key, value) in pairs {
+            if attrs[key] == nil {
+                attrs[key] = value
+            }
+        }
+        return attrs
     }
 
     public func head(_ node: Node, _: Int) throws {
-        handle_tag(
-            node.nodeName(),
-            dict(
-                uniqueKeysWithValues: node.getAttributes()!.asList().flatMap {
-                    (attr: Attribute) -> [String: String] in
-                    [attr.getKey(): attr.getValue()]
-                }), true)
+        var pairs: [(String, String)] = []
+        if let attributes = node.getAttributes() {
+            pairs = attributes.asList().map { ($0.getKey(), $0.getValue()) }
+        }
+        handle_tag(node.nodeName(), firstAttributeValues(pairs), true)
     }
 
     public func tail(_ node: Node, _: Int) throws {

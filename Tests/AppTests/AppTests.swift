@@ -1,4 +1,4 @@
-import HTML2Text
+@testable import HTML2Text
 import XCTest
 
 final class AppTests: XCTestCase {
@@ -438,6 +438,24 @@ final class AppTests: XCTestCase {
         XCTAssertEqual(rendered(html), "| ----- |\n| A | B | \n| C | D | ")
     }
 
+    func testFirstAttributeValueWins() throws {
+        let h = HTML2Text(baseurl: "")
+        XCTAssertEqual(
+            h.firstAttributeValues([
+                ("href", "https://a.example"),
+                ("href", "https://b.example"),
+                ("class", "ext"),
+            ]),
+            ["href": "https://a.example", "class": "ext"]
+        )
+    }
+
+    func testDuplicateHrefDoesNotTrap() throws {
+        let html = "<p><a href=\"https://example.com\" href=\"https://other.example\">Hello</a></p>"
+        let result = HTML2Text.process(html: html, baseurl: nil)
+        XCTAssertTrue(result.contains("Hello"))
+    }
+
     func testFixheadlinesRepairsEachHeadlineSeparately() throws {
         let h = HTML2Text()
         let broken = """
@@ -549,5 +567,7 @@ final class AppTests: XCTestCase {
         ("testReferenceImageResolvesRootRelativeSrc", testReferenceImageResolvesRootRelativeSrc),
         ("testTableWithHeader", testTableWithHeader),
         ("testTableWithoutHeader", testTableWithoutHeader),
+        ("testFirstAttributeValueWins", testFirstAttributeValueWins),
+        ("testDuplicateHrefDoesNotTrap", testDuplicateHrefDoesNotTrap),
     ]
 }
